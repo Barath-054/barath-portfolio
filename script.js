@@ -59,44 +59,54 @@ new Typed(".typed-text span", {
     cursorChar: "|"
 });
 
-// 3. SKILLS PROGRESS BAR ANIMATION ON SCROLL
+// 3. SKILLS PROGRESS BAR ANIMATION ON SCROLL (Improved)
 const skillCards = document.querySelectorAll('.skill-card');
 
-const skillObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const percent = entry.target.getAttribute('data-percent');
-            const fill = entry.target.querySelector('.progress-fill');
-            const percentText = entry.target.querySelector('.percent');
+const skillObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const card = entry.target;
+        const targetPercent = parseInt(card.getAttribute('data-percent'), 10);
+        const fillBar = card.querySelector('.progress-fill');
+        const percentText = card.querySelector('.percent');
 
-            // Animate width
-            setTimeout(() => {
-                fill.style.width = percent + '%';
-            }, 300);
+        // Reset in case of re-trigger (optional)
+        fillBar.style.width = '0%';
+        percentText.textContent = '0%';
 
-            // Animate number counting
-            let start = 0;
-            const end = parseInt(percent);
-            const duration = 2000;
-            const increment = end / (duration / 16);
+        // Small delay for smoother entrance
+        setTimeout(() => {
+          fillBar.style.width = `${targetPercent}%`;
+          fillBar.style.transition = 'width 2s ease-out';
 
-            const timer = setInterval(() => {
-                start += increment;
-                if (start >= end) {
-                    percentText.textContent = end + '%';
-                    clearInterval(timer);
-                } else {
-                    percentText.textContent = Math.floor(start) + '%';
-                }
-            }, 16);
+          // Counter animation
+          let current = 0;
+          const increment = targetPercent / 100; // ~60fps feel
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= targetPercent) {
+              percentText.textContent = `${targetPercent}%`;
+              clearInterval(timer);
+            } else {
+              percentText.textContent = `${Math.floor(current)}%`;
+            }
+          }, 20);
+        }, 200);
 
-            // Stop observing after animation
-            skillObserver.unobserve(entry.target);
-        }
+        // Animate once
+        skillObserver.unobserve(card);
+      }
     });
-}, { threshold: 0.6 });
+  },
+  {
+    threshold: 0.7,        // Trigger when 70% of card is visible
+    rootMargin: '0px 0px -50px 0px'  // Slight early trigger
+  }
+);
 
-skillCards.forEach(card => skillObserver.observe(card));
+// Observe all skill cards
+skillCards.forEach((card) => skillObserver.observe(card));
 
 // 4. SMOOTH SCROLL FOR NAV LINKS
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
