@@ -185,8 +185,42 @@ window.addEventListener('click', (e) => {
         document.body.style.overflow = 'auto';
     }
 });
+// Improved Chatbot Toggle - More Reliable
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('chatToggle');
+    const chatWindow = document.getElementById('chatWindow');
+    const closeBtn = document.getElementById('chatClose');
+    const widget = document.getElementById('chatbotWidget');
 
+    function toggleChat() {
+        chatWindow.classList.toggle('active');
+    }
 
+    // Click / Tap handler
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopImmediatePropagation();
+        toggleChat();
+    });
+
+    closeBtn.addEventListener('click', (e) => {
+        e.stopImmediatePropagation();
+        chatWindow.classList.remove('active');
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!widget.contains(e.target)) {
+            chatWindow.classList.remove('active');
+        }
+    });
+
+    // Keyboard support (Escape key)
+    document.addEventListener('keydown', (e) => {
+        if (e.key === "Escape" && chatWindow.classList.contains('active')) {
+            chatWindow.classList.remove('active');
+        }
+    });
+});
 // 7. ADD LIGHT MODE CSS (Optional - paste in style.css if using toggle)
 /*
 .light-mode {
